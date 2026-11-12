@@ -21,19 +21,19 @@ machine.
 
 ## Getting started
 
-You need Node.js 22+.
+You need Node.js 22+ and [Bun](https://bun.sh) (the repo ships a `bun.lock`).
 
 ```sh
-npm install
-cp .env.example .env    # then fill in the values
-npm run dev             # http://localhost:8080
+bun install
+cp .env.example .env    # PowerShell: Copy-Item .env.example .env
+bun run dev             # http://localhost:8080
 ```
 
 ```sh
-npm run build           # production build (Vercel Build Output API)
-npm run preview         # preview the production build
-npm test                # vitest
-npm run lint
+bun run build           # production build (Vercel Build Output API)
+bun run preview         # preview the production build
+bun test                # vitest
+bun run lint
 ```
 
 ## Environment
@@ -57,7 +57,12 @@ or your own relay from `ws-server/`.
 
 The build targets Vercel directly (`nitro` with the `vercel` preset). Import the
 repo, then add the environment variables above to the project. Build command:
-`npm run build`.
+`bun run build`. Alternatively deploy the build output from your machine:
+
+```sh
+bun run build
+vercel deploy --prebuilt --prod
+```
 
 ## Self-hosting the relay (optional)
 
