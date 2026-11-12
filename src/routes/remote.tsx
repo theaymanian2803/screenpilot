@@ -4,6 +4,7 @@ import { Pause, Play, Square, Maximize2, Minimize2, MousePointer2, Crosshair, Ha
 import { openChannel, fmt, type RecState, type ConnState, type MouseAction } from "@/lib/control-channel";
 import { createPeer, type Signal } from "@/lib/live-preview";
 import { PreviewHelp } from "@/components/PreviewHelp";
+import { SiteGate } from "@/components/SiteGate";
 
 export const Route = createFileRoute("/remote")({
   head: () => ({
@@ -16,8 +17,12 @@ export const Route = createFileRoute("/remote")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Remote,
+  component: ProtectedRemote,
 });
+
+function ProtectedRemote() {
+  return <SiteGate><Remote /></SiteGate>;
+}
 
 function Remote() {
   const [room, setRoom] = useState("");

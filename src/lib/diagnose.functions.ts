@@ -1,4 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
+import { useSession } from "@tanstack/react-start/server";
+
+type GateSession = { unlocked?: boolean };
+
+function sessionConfig() {
+  return {
+    password: process.env["SESSION_SECRET"]!,
+    name: "screencast-gate",
+    maxAge: 60 * 60 * 24 * 7,
+    cookie: { httpOnly: true, secure: true, sameSite: "lax" as const, path: "/" },
+  };
+}
 
 type Input = {
   problem: string;
@@ -17,6 +29,8 @@ export const diagnosePreview = createServerFn({ method: "POST" })
     return { problem, context: d.context };
   })
   .handler(async ({ data }) => {
+    const session = await useSession<GateSession>(sessionConfig());
+    if (!session.data.unlocked) return { error: "Unlock the app before using AI help." };
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { error: "AI help isn't configured yet." };
     const { createOpenAI } = await import("@ai-sdk/openai");
