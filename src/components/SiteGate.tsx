@@ -60,22 +60,23 @@ export function SiteGate({ children }: { children: ReactNode }) {
 
   if (state === "unlocked") {
     return (
-      <>
+      <div className="min-h-dvh">
+        <div className="flex justify-end px-4 py-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-label="Lock app"
+            title="Lock app"
+            disabled={busy}
+            onClick={() => void lockApp()}
+          >
+            <LockKeyhole />
+            Lock
+          </Button>
+        </div>
         {children}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          aria-label="Lock app"
-          title="Lock app"
-          disabled={busy}
-          onClick={() => void lockApp()}
-          className="fixed right-4 top-4 z-50"
-        >
-          <LockKeyhole />
-          Lock
-        </Button>
-      </>
+      </div>
     );
   }
 
