@@ -1,10 +1,13 @@
 {
-  "name": "ScreenCast Remote",
-  "short_name": "CastRemote",
+  "name": "ScreenPilot",
+  "short_name": "ScreenPilot",
+  "description": "Record your screen in the browser, piloted live from your phone.",
   "start_url": "/remote",
   "scope": "/",
   "display": "standalone",
   "background_color": "#121214",
   "theme_color": "#121214",
-  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
 }

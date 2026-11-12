@@ -19,7 +19,7 @@ export type ConnState = "connecting" | "connected" | "disconnected";
 /**
  * Connects the control channel used for pairing, commands and WebRTC signaling:
  * 1. a relay WebSocket server (ws-server/) when `url` is given,
- * 2. otherwise the app's built-in cloud relay (Realtime broadcast + presence),
+ * 2. otherwise the app's built-in cloud relay (Supabase Realtime broadcast + presence),
  * 3. falling back to BroadcastChannel for same-browser testing when no cloud env is configured.
  */
 export function openChannel(opts: {
@@ -35,7 +35,10 @@ export function openChannel(opts: {
   let sendFn: (m: Msg) => void = () => {};
 
   const scheduleRetry = (connect: () => void) => {
-    if (!closed) retry = setTimeout(() => { if (!closed) connect(); }, 2000);
+    if (!closed)
+      retry = setTimeout(() => {
+        if (!closed) connect();
+      }, 2000);
   };
 
   if (url) {
@@ -89,16 +92,20 @@ export function openChannel(opts: {
         if (closed) return;
         sb = mod.supabase;
         channel = sb
-          .channel(`screencast:${room}`, { config: { broadcast: { self: false, ack: false } } })
+          .channel(`screenpilot:${room}`, { config: { broadcast: { self: false, ack: false } } })
           .on("broadcast", { event: "msg" }, ({ payload }) => onMessage(payload as Msg))
           .on("presence", { event: "sync" }, () => {
-            if (channel) onMessage({ type: "peers", count: Object.keys(channel.presenceState()).length });
+            if (channel)
+              onMessage({ type: "peers", count: Object.keys(channel.presenceState()).length });
           });
         channel.subscribe((status) => {
           if (status === "SUBSCRIBED") {
             void channel?.track({ role });
             onConn("connected");
-          } else if (!closed && (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED")) {
+          } else if (
+            !closed &&
+            (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED")
+          ) {
             onConn("disconnected");
             scheduleRetry(() => void connect());
           }
@@ -122,7 +129,7 @@ export function openChannel(opts: {
     };
   }
 
-  const bc = new BroadcastChannel(`screencast-${room}`);
+  const bc = new BroadcastChannel(`screenpilot-${room}`);
   bc.onmessage = (e) => onMessage(e.data as Msg);
   onConn("connected");
   return {

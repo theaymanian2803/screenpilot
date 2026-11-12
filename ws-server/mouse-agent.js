@@ -1,4 +1,4 @@
-// Desktop mouse helper for ScreenCast.
+// Desktop mouse helper for ScreenPilot.
 // Browsers cannot move the real OS cursor, so this tiny local program does it.
 // Run on the PC being recorded:  cd ws-server && npm install && npm run mouse
 // Then paste the printed access code into the dashboard's "Phone mouse control" panel.
@@ -25,14 +25,19 @@ wss.on("connection", (ws) => {
   let authed = false;
   ws.on("message", async (raw) => {
     let m;
-    try { m = JSON.parse(raw.toString()); } catch { return; }
+    try {
+      m = JSON.parse(raw.toString());
+    } catch {
+      return;
+    }
     if (!authed) {
       authed = m.type === "auth" && m.token === token;
       ws.send(JSON.stringify({ type: authed ? "ok" : "denied" }));
       if (!authed) ws.close();
       return;
     }
-    const x = Number(m.x), y = Number(m.y);
+    const x = Number(m.x),
+      y = Number(m.y);
     if (!(x >= 0 && x <= 1 && y >= 0 && y <= 1)) return;
     try {
       const [w, h] = [await screen.width(), await screen.height()];
@@ -45,5 +50,5 @@ wss.on("connection", (ws) => {
   });
 });
 
-console.log(`ScreenCast mouse helper on ws://localhost:${port}`);
+console.log(`ScreenPilot mouse helper on ws://localhost:${port}`);
 console.log(`Access code: ${token}`);

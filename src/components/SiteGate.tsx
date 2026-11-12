@@ -20,9 +20,18 @@ export function SiteGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true;
     void getStatus()
-      .then((result) => { if (active) setState(result.unlocked ? "unlocked" : "locked"); })
-      .catch(() => { if (active) { setMessage("Could not verify access. Try again."); setState("error"); } });
-    return () => { active = false; };
+      .then((result) => {
+        if (active) setState(result.unlocked ? "unlocked" : "locked");
+      })
+      .catch(() => {
+        if (active) {
+          setMessage("Could not verify access. Try again.");
+          setState("error");
+        }
+      });
+    return () => {
+      active = false;
+    };
   }, [getStatus]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -88,7 +97,7 @@ export function SiteGate({ children }: { children: ReactNode }) {
             <Monitor className="size-5" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">ScreenCast</p>
+            <p className="text-sm text-muted-foreground">ScreenPilot</p>
             <h1 className="text-xl font-semibold">Private access</h1>
           </div>
         </div>
@@ -98,7 +107,9 @@ export function SiteGate({ children }: { children: ReactNode }) {
             Enter your passcode to continue.
           </div>
           {state === "checking" ? (
-            <p role="status" className="text-sm text-muted-foreground">Checking access…</p>
+            <p role="status" className="text-sm text-muted-foreground">
+              Checking access…
+            </p>
           ) : (
             <form onSubmit={(event) => void submit(event)} className="space-y-4">
               <div className="space-y-2">
@@ -115,7 +126,11 @@ export function SiteGate({ children }: { children: ReactNode }) {
                   disabled={busy}
                 />
               </div>
-              {message && <p role="alert" className="text-sm text-destructive">{message}</p>}
+              {message && (
+                <p role="alert" className="text-sm text-destructive">
+                  {message}
+                </p>
+              )}
               <Button type="submit" className="w-full" disabled={busy || passcode.length === 0}>
                 <LockKeyhole />
                 {busy ? "Checking…" : "Unlock"}

@@ -56,7 +56,9 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
+  * {
+    border-color: var(--color-border);
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -67,24 +69,46 @@
 }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 oklch(0.64 0.21 29 / 60%); }
-  100% { box-shadow: 0 0 0 18px oklch(0.64 0.21 29 / 0%); }
+  0% {
+    box-shadow: 0 0 0 0 oklch(0.64 0.21 29 / 60%);
+  }
+  100% {
+    box-shadow: 0 0 0 18px oklch(0.64 0.21 29 / 0%);
+  }
 }
-@utility live-pulse { animation: pulse-ring 1.4s ease-out infinite; }
+@utility live-pulse {
+  animation: pulse-ring 1.4s ease-out infinite;
+}
 @utility panel {
   background: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
 }
 @utility ctl {
-  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-  border-radius: 999px; padding: .75rem 1.25rem; font-weight: 600;
-  background: var(--color-secondary); color: var(--color-secondary-foreground);
-  transition: transform .15s, opacity .15s;
-  &:hover:not(:disabled) { transform: translateY(-1px); }
-  &:disabled { opacity: .35; cursor: not-allowed; }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  background: var(--color-secondary);
+  color: var(--color-secondary-foreground);
+  transition:
+    transform 0.15s,
+    opacity 0.15s;
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
 }
-@utility ctl-rec { background: var(--color-primary); color: var(--color-primary-foreground); }
+@utility ctl-rec {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
 
 /* Phone laser pointer overlay on the PC preview */
 .laser-dot {
@@ -94,8 +118,12 @@
   margin: -9px 0 0 -9px;
   border-radius: 9999px;
   background: var(--live);
-  box-shadow: 0 0 0 4px color-mix(in oklch, var(--live) 35%, transparent), 0 0 24px 6px var(--live);
-  transition: left 60ms linear, top 60ms linear;
+  box-shadow:
+    0 0 0 4px color-mix(in oklch, var(--live) 35%, transparent),
+    0 0 24px 6px var(--live);
+  transition:
+    left 60ms linear,
+    top 60ms linear;
 }
 .laser-ripple {
   position: absolute;
@@ -106,8 +134,16 @@
   border: 3px solid var(--live);
   animation: laser-ripple 650ms ease-out forwards;
 }
-.laser-ripple-dbl { border-width: 6px; }
+.laser-ripple-dbl {
+  border-width: 6px;
+}
 @keyframes laser-ripple {
-  from { transform: scale(0.2); opacity: 1; }
-  to { transform: scale(1.4); opacity: 0; }
+  from {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
 }

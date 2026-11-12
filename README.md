@@ -1,24 +1,93 @@
-# ScreenFlow Remote
+# ScreenPilot
 
-Generate a complete web-based screen recorder application. The PC interface must provide a dashboard to select a monitor or window using getDisplayMedia, with controls to start, pause, stop, and save the recording. The mobile interface must be a PWA featuring a floating bubble that remains on screen, displaying connection status and buttons for remote play and pause. A WebSocket server must be included to manage real-time control signals between the mobile and PC interfaces
+A browser screen recorder you steer from your phone.
 
-This project was built with [Lovable](https://lovable.dev).
+Open the dashboard on your computer, pick a monitor, window or tab, then scan the
+pairing QR code with your phone. The phone becomes a floating remote: live
+preview, play / pause / stop, and optional tap-to-click control of the real
+machine.
 
-## Build with Lovable
+## What's inside
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/41b8709b-6860-43a8-9151-57f54e2e27f3).
+- **`/` — desktop dashboard.** `getDisplayMedia` capture with quality presets,
+  system + microphone audio mixing, live preview, and local `.webm` download.
+- **`/remote` — phone remote.** Installable PWA with a draggable control bubble,
+  live WebRTC preview, and View / Pointer / Mouse touch modes.
+- **Signaling.** Pairing, commands and WebRTC offers travel over Supabase Realtime
+  (broadcast + presence) by default — no server to run. You can point both sides
+  at your own WebSocket relay instead.
+- **`ws-server/` — optional local helpers.** A relay for self-hosting and a
+  localhost-only mouse agent that turns phone taps into real OS clicks.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+## Getting started
 
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+You need Node.js 22+.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+npm install
+cp .env.example .env    # then fill in the values
+npm run dev             # http://localhost:8080
+```
+
+```sh
+npm run build           # production build (Vercel Build Output API)
+npm run preview         # preview the production build
+npm test                # vitest
+npm run lint
+```
+
+## Environment
+
+| Variable                        | Required               | Purpose                                                           |
+| ------------------------------- | ---------------------- | ----------------------------------------------------------------- |
+| `SESSION_SECRET`                | yes                    | Signs the unlocked-site session cookie. 32+ characters.           |
+| `SITE_PASSWORD`                 | yes                    | Passcode that unlocks the dashboard and phone remote.             |
+| `VITE_SUPABASE_URL`             | for the built-in relay | Supabase project URL.                                             |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | for the built-in relay | Supabase publishable (anon) key.                                  |
+| `AI_API_KEY`                    | no                     | Enables the "Preview not working?" helper.                        |
+| `AI_BASE_URL`                   | no                     | OpenAI-compatible endpoint (default `https://api.openai.com/v1`). |
+| `AI_MODEL`                      | no                     | Model name for the helper (default `gpt-4o-mini`).                |
+
+Generate a secret with `openssl rand -hex 32` (or `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`).
+
+Without a Supabase project, pairing falls back to same-browser `BroadcastChannel`
+or your own relay from `ws-server/`.
+
+## Deploying to Vercel
+
+The build targets Vercel directly (`nitro` with the `vercel` preset). Import the
+repo, then add the environment variables above to the project. Build command:
+`npm run build`.
+
+## Self-hosting the relay (optional)
+
+```sh
+cd ws-server
+npm install
+npm start            # relay on :8787
+npm run mouse        # local mouse helper on :8788 (prints an access code)
+```
+
+Enter the relay URL in the dashboard and the remote to bypass the built-in
+cloud relay.
+
+## How pairing works
+
+1. The dashboard generates a short pair code and a QR link (`/remote?room=CODE`).
+2. Both sides join the same realtime channel and exchange presence.
+3. The phone asks for a preview; the desktop sends a WebRTC offer; video flows
+   peer-to-peer over STUN.
+4. Commands (`play`, `pause`, `stop`, `request-source`) and pointer events are
+   broadcast on the same channel.
+
+## Project layout
+
+```
+src/routes/index.tsx      desktop recorder dashboard
+src/routes/remote.tsx     phone remote + floating bubble
+src/lib/recording-media.ts  capture presets, audio mixing, cleanup
+src/lib/control-channel.ts  relay selection: WebSocket / Supabase / BroadcastChannel
+src/lib/live-preview.ts   WebRTC peer helpers
+src/lib/site-gate.functions.ts  passcode session (server functions)
+ws-server/                optional relay + mouse agent
 ```

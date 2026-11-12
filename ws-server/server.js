@@ -1,4 +1,4 @@
-// Relay WebSocket server for ScreenCast Remote.
+// Relay WebSocket server for ScreenPilot.
 // Run: cd ws-server && npm install && npm start   (listens on PORT or 8787)
 import { WebSocketServer } from "ws";
 
@@ -17,7 +17,11 @@ wss.on("connection", (ws) => {
   ws.room = null;
   ws.on("message", (raw) => {
     let m;
-    try { m = JSON.parse(raw.toString()); } catch { return; }
+    try {
+      m = JSON.parse(raw.toString());
+    } catch {
+      return;
+    }
     if (m.type === "join" && typeof m.room === "string") {
       ws.room = m.room.slice(0, 32);
       ws.role = m.role;
@@ -40,4 +44,4 @@ wss.on("connection", (ws) => {
   });
 });
 
-console.log(`ScreenCast relay listening on ws://0.0.0.0:${port}`);
+console.log(`ScreenPilot relay listening on ws://0.0.0.0:${port}`);

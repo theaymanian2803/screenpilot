@@ -7,7 +7,7 @@ type GateSession = { unlocked?: boolean };
 function sessionConfig() {
   return {
     password: process.env["SESSION_SECRET"]!,
-    name: "screencast-gate",
+    name: "screenpilot-gate",
     maxAge: 60 * 60 * 24 * 7,
     cookie: { httpOnly: true, secure: true, sameSite: "lax" as const, path: "/" },
   };
@@ -19,7 +19,7 @@ export const getGateStatus = createServerFn({ method: "GET" }).handler(async () 
 });
 
 export const unlockSite = createServerFn({ method: "POST" })
-  .inputValidator((data: { passcode: string }) => data)
+  .validator((data: { passcode: string }) => data)
   .handler(async ({ data }) => {
     const expected = process.env["SITE_PASSWORD"];
     if (!expected) throw new Error("SITE_PASSWORD is not configured");

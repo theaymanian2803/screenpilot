@@ -1,19 +1,54 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - TanStack devtools (dev-only, first), tanstackStart, viteReact, tailwindcss, tsConfigPaths,
-//     nitro (build-only using cloudflare as a default target), VITE_* env injection, @ path alias,
-//     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig } from "vite";
+import { fileURLToPath } from "node:url";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import tsConfigPaths from "vite-tsconfig-paths";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
 
-export default defineConfig({
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
+// TanStack Start + Tailwind + Nitro.
+// `nitro` only runs for production builds and targets Vercel's Build Output API,
+// which is what the app is deployed to. Local dev stays on plain Vite.
+export default defineConfig(({ command }) => ({
+  css: { transformer: "lightningcss" },
+  resolve: {
+    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+    dedupe: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "@tanstack/react-query",
+      "@tanstack/query-core",
+    ],
   },
-  vite: {
-    // Pre-bundle at startup so it shares the same React copy (avoids null-hooks crash after late re-optimization).
-    optimizeDeps: { include: ["qrcode.react"] },
+  optimizeDeps: {
+    // Pre-bundle at startup so the app shares one React copy (avoids a null-hooks
+    // crash after a late re-optimization).
+    include: [
+      "react",
+      "react-dom",
+      "react-dom/client",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "qrcode.react",
+    ],
+    ignoreOutdatedRequests: true,
   },
-});
+  server: { host: "::", port: 8080 },
+  plugins: [
+    tailwindcss(),
+    tsConfigPaths({ projects: ["./tsconfig.json"] }),
+    tanstackStart({
+      // Point TanStack Start's bundled server entry at src/server.ts (the SSR
+      // error wrapper). Nitro/Vite build from this entry.
+      server: { entry: "server" },
+      importProtection: {
+        behavior: "error",
+        client: { files: ["**/server/**"], specifiers: ["server-only"] },
+      },
+    }),
+    ...(command === "build" ? [nitro({ preset: "vercel" })] : []),
+    react(),
+  ],
+}));
