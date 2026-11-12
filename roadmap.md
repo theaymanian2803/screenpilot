@@ -4,3 +4,4 @@
 - [ ] Scan the QR with a real phone over Wi-Fi and confirm auto-pairing, live preview and bubble controls end to end.
 - [x] Phone remote: View / Pointer / Mouse touch modes, tap=click, double-tap=double-click, drag=move; Fit-to-screen + Fit/Fill toggle; local mouse helper for real OS clicks.
 - [ ] Try Pointer and Mouse modes from a real phone (simulated test couldn't render the preview video).
+- [x] Add a shared passcode screen protecting the dashboard, phone remote, and protected server actions.

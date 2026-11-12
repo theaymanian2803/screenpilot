@@ -7,6 +7,7 @@ import { createPeer, type Signal } from "@/lib/live-preview";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { QRCodeSVG } from "qrcode.react";
+import { SiteGate } from "@/components/SiteGate";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,8 +20,12 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Dashboard,
+  component: ProtectedDashboard,
 });
+
+function ProtectedDashboard() {
+  return <SiteGate><Dashboard /></SiteGate>;
+}
 
 function Dashboard() {
   const videoRef = useRef<HTMLVideoElement>(null);
